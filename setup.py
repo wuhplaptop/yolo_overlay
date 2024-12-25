@@ -1,57 +1,46 @@
-@patch('yolo_overlay.overlay.pkg_resources.path')
-@patch('yolo_overlay.overlay.get_monitors')  # Mocking get_monitors from screeninfo
-@patch('yolo_overlay.overlay.YOLO')
-@patch('yolo_overlay.overlay.ctypes.WinDLL')
-def test_initialization(self, mock_windll, mock_yolo, mock_get_monitors, mock_pkg_resources_path):
-    """
-    Test the successful initialization of YOLOOverlay with mocked dependencies.
-    """
-    # Ensure model is downloaded
-    download_model()
+from setuptools import setup, find_packages
+import os
 
-    # Correct paths
-    expected_model_path = MODEL_PATH  # Ensure proper extension for YOLO model file
-    expected_dll_path = "resources/overlay-yolo.dll"
+# Read the README file for the long description
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
 
-    # Mock DLL path
-    mock_dll_path = MagicMock()
-    mock_pkg_resources_path.return_value.__enter__.return_value = mock_dll_path
-    mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = expected_dll_path
+# Define required dependencies
+requirements = [
+    "Pillow>=9.4.0",
+    "mss>=6.1.0",
+    "ultralytics>=8.0.49",
+    "screeninfo>=0.8.1",
+    "numpy>=1.24.3",
+    "requests>=2.25.1"
+]
 
-    # Mock DLL
-    mock_dll_instance = MagicMock()
-    mock_windll.return_value = mock_dll_instance
-    mock_dll_instance.StartOverlay.return_value = 0
-
-    # Mock YOLO model
-    mock_model_instance = MagicMock()
-    mock_yolo.return_value = mock_model_instance
-
-    # Mock monitor
-    mock_monitor = MagicMock()
-    mock_monitor.x = 0
-    mock_monitor.y = 0
-    mock_monitor.width = 1920
-    mock_monitor.height = 1080
-    mock_get_monitors.return_value = [mock_monitor]
-
-    try:
-        overlay = YOLOOverlay(
-            model_path=expected_model_path,
-            max_detections=100,
-            conf_threshold=0.5,
-            monitor_index=0
-        )
-        self.assertIsNotNone(overlay)
-
-        # Verify DLL path
-        mock_windll.assert_called_with(expected_dll_path)
-
-        # Verify YOLO model initialization
-        mock_yolo.assert_called_with(expected_model_path)  # Correct file name expected
-        print(f"[DEBUG] Mock YOLO calls: {mock_yolo.call_args_list}")  # Debugging output
-
-        overlay.stop()
-        mock_dll_instance.StopOverlay.assert_called_once()
-    except Exception as e:
-        self.fail(f"Initialization failed with exception: {e}")
+setup(
+    name="yolo-overlay",  # Replace with your desired package name
+    version="0.1.0",
+    author="wuhp",
+    author_email="your.email@example.com",
+    description="A Python package to overlay YOLO detections on displays using a custom DLL.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/wuhplaptop/yolo_overlay",  # Replace with your project's URL
+    packages=find_packages(include=["yolo_overlay", "yolo_overlay.*"]),
+    package_data={
+        'yolo_overlay': ['resources/*.dll', 'resources/*.pt'],  # Includes the DLL and model in the package
+    },
+    include_package_data=True,  # Ensure package data is included
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Operating System :: Microsoft :: Windows",
+        "License :: OSI Approved :: MIT License",  # Adjust based on your license
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
+    python_requires='>=3.7',
+    install_requires=requirements,
+    entry_points={
+        'console_scripts': [
+            'yolo-overlay=yolo_overlay.cli:main',  # Entry point for a command-line tool
+        ],
+    },
+    keywords="yolo overlay detection computer-vision",
+)
