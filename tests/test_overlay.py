@@ -14,23 +14,22 @@ class TestYOLOOverlay(unittest.TestCase):
         """
         Test the successful initialization of YOLOOverlay with mocked dependencies.
         """
-        # Expected paths for model and DLL
         expected_model_path = "resources/writing50e11n.pt"
         expected_dll_path = "resources/overlay-yolo.dll"
 
-        # Mock the DLL path
+        # Mock DLL path
         mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = expected_dll_path
 
-        # Mock the DLL instance
+        # Mock DLL instance
         mock_dll_instance = MagicMock()
         mock_windll.return_value = mock_dll_instance
-        mock_dll_instance.StartOverlay.return_value = 0  # Simulate successful overlay start
+        mock_dll_instance.StartOverlay.return_value = 0
 
-        # Mock the YOLO model
+        # Mock YOLO model
         mock_model_instance = MagicMock()
         mock_yolo.return_value = mock_model_instance
 
-        # Mock the monitor
+        # Mock monitor
         mock_monitor = MagicMock()
         mock_monitor.x = 0
         mock_monitor.y = 0
@@ -39,27 +38,39 @@ class TestYOLOOverlay(unittest.TestCase):
         mock_get_monitors.return_value = [mock_monitor]
 
         try:
-            # Initialize the overlay with the expected model path
             overlay = YOLOOverlay(
                 model_path=expected_model_path,
                 max_detections=100,
                 conf_threshold=0.5,
                 monitor_index=0
             )
-            self.assertIsNotNone(overlay)
 
-            # Debug: Print mock YOLO call arguments
-            print(f"[DEBUG] YOLO was called with: {mock_yolo.call_args}")
-            print(f"[DEBUG] Model path during initialization: {overlay.model_path}")
+            # Debug the call arguments for YOLO
+            print(f"[DEBUG] mock_yolo call args: {mock_yolo.call_args}")
+            self.assertIsNotNone(overlay)
 
             # Assert the YOLO model was called with the correct path
             mock_yolo.assert_called_with(expected_model_path)
 
-            # Stop the overlay and assert the DLL method was called
             overlay.stop()
             mock_dll_instance.StopOverlay.assert_called_once()
         except Exception as e:
             self.fail(f"Initialization failed with exception: {e}")
+
+    @patch('yolo_overlay.overlay.pkg_resources.path')
+    def test_model_path_integrity(self, mock_pkg_resources_path):
+        """
+        Ensure that the model path is not modified during initialization.
+        """
+        expected_model_path = "resources/writing50e11n.pt"
+        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = "resources/overlay-yolo.dll"
+
+        try:
+            overlay = YOLOOverlay(model_path=expected_model_path)
+            self.assertEqual(overlay.model_path, expected_model_path, "Model path was altered during initialization.")
+            print(f"[DEBUG] Model path integrity test passed: {overlay.model_path}")
+        except Exception as e:
+            self.fail(f"Model path integrity test failed with exception: {e}")
 
 
 if __name__ == "__main__":
