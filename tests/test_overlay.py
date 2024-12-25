@@ -2,7 +2,6 @@
 
 import unittest
 from unittest.mock import patch, MagicMock
-from yolo_overlay import YOLOOverlay
 from pathlib import Path  # Importing Path from pathlib
 
 class TestYOLOOverlay(unittest.TestCase):
@@ -14,10 +13,17 @@ class TestYOLOOverlay(unittest.TestCase):
         """
         Test the successful initialization of YOLOOverlay with mocked dependencies.
         """
+        # Import YOLOOverlay inside the test function after patches are applied
+        from yolo_overlay import YOLOOverlay
+
+        # Define the expected paths
+        expected_model_path = "writing50e11n.pt"
+        expected_dll_path = "resources/overlay-yolo.dll"
+
         # Mock the path context manager to return a fake DLL path
         mock_dll_path = MagicMock()
         mock_pkg_resources_path.return_value.__enter__.return_value = mock_dll_path
-        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'resources/overlay-yolo.dll'
+        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = expected_dll_path
 
         # Mock the DLL loading
         mock_dll_instance = MagicMock()
@@ -45,7 +51,7 @@ class TestYOLOOverlay(unittest.TestCase):
         # Initialize YOLOOverlay with mocked dependencies
         try:
             overlay = YOLOOverlay(
-                model_path=r"writing50e11n.ptt",
+                model_path=expected_model_path,
                 max_detections=100,
                 conf_threshold=0.5,
                 monitor_index=0
@@ -53,10 +59,10 @@ class TestYOLOOverlay(unittest.TestCase):
             self.assertIsNotNone(overlay)
             
             # Verify that WinDLL was called with the correct DLL path
-            mock_windll.assert_called_with('resources/overlay-yolo.dll')
+            mock_windll.assert_called_with(expected_dll_path)
             
             # Verify that YOLO was called with the correct model path
-            mock_yolo.assert_called_with(r"writing50e11n.pt")
+            mock_yolo.assert_called_with(expected_model_path)
             
             # Verify that SetTargetMonitorRect was called with correct parameters
             mock_dll_instance.SetTargetMonitorRect.assert_called_with(
@@ -89,10 +95,17 @@ class TestYOLOOverlay(unittest.TestCase):
         Test the initialization of YOLOOverlay with an invalid model path.
         Expect the program to exit gracefully.
         """
+        # Import YOLOOverlay inside the test function after patches are applied
+        from yolo_overlay import YOLOOverlay
+
+        # Define the invalid model path
+        invalid_model_path = "writing50e11n.ptt"  # Intentional typo for the test
+        expected_dll_path = "resources/overlay-yolo.dll"
+
         # Mock the path context manager to return a fake DLL path
         mock_dll_path = MagicMock()
         mock_pkg_resources_path.return_value.__enter__.return_value = mock_dll_path
-        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'resources/overlay-yolo.dll'
+        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = expected_dll_path
 
         # Mock the DLL loading
         mock_dll_instance = MagicMock()
@@ -116,7 +129,7 @@ class TestYOLOOverlay(unittest.TestCase):
         # Since the constructor will call sys.exit(1), we need to handle it
         with self.assertRaises(SystemExit) as cm:
             overlay = YOLOOverlay(
-                model_path=r"C:\invalid\path\to\model.pt",
+                model_path=invalid_model_path,
                 max_detections=100,
                 conf_threshold=0.5,
                 monitor_index=0
