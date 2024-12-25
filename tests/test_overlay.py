@@ -17,7 +17,7 @@ class TestYOLOOverlay(unittest.TestCase):
         # Mock the path context manager to return a fake DLL path
         mock_dll_path = MagicMock()
         mock_pkg_resources_path.return_value.__enter__.return_value = mock_dll_path
-        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'path/to/overlay-yolo.dll'
+        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'resources/overlay-yolo.dll'
 
         # Mock the DLL loading
         mock_dll_instance = MagicMock()
@@ -53,7 +53,7 @@ class TestYOLOOverlay(unittest.TestCase):
             self.assertIsNotNone(overlay)
             
             # Verify that WinDLL was called with the correct DLL path
-            mock_windll.assert_called_with('path/to/overlay-yolo.dll')
+            mock_windll.assert_called_with('resources/overlay-yolo.dll')
             
             # Verify that YOLO was called with the correct model path
             mock_yolo.assert_called_with(r"writing50e11n.pt")
