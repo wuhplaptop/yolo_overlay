@@ -8,8 +8,8 @@ class TestYOLOOverlay(unittest.TestCase):
         """
         Test the successful initialization of YOLOOverlay with actual file paths.
         """
-        model_path = "resources/writing50e11n.pt"
-        dll_path = "resources/overlay-yolo.dll"
+        model_path = os.path.join("yolo_overlay", "resources", "writing50e11n.pt")
+        dll_path = os.path.join("yolo_overlay", "resources", "overlay-yolo.dll")
 
         self.assertTrue(os.path.exists(model_path), f"Model file does not exist: {model_path}")
         self.assertTrue(os.path.exists(dll_path), f"DLL file does not exist: {dll_path}")
@@ -31,7 +31,7 @@ class TestYOLOOverlay(unittest.TestCase):
         """
         Ensure the model path is not altered during initialization.
         """
-        model_path = "resources/writing50e11n.pt"
+        model_path = os.path.join("yolo_overlay", "resources", "writing50e11n.pt")
         self.assertTrue(os.path.exists(model_path), f"Model file does not exist: {model_path}")
 
         try:
