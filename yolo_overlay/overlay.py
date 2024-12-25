@@ -70,6 +70,12 @@ class YOLOOverlay:
             self.stop()
             sys.exit(1)
         
+        # Debugging: Check for model path errors
+        print(f"[DEBUG] Attempting to load YOLO model from: {self.model_path}")
+        if not self.model_path.endswith(".pt"):
+            print("[ERROR] Model path must end with .pt")
+            sys.exit(1)
+        
         try:
             self.model = YOLO(self.model_path)
             print("[INFO] YOLO model loaded successfully.")
