@@ -8,12 +8,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="yolo-overlay",  # Replace with your desired package name
     version="0.1.0",
-    author="Your Name",
+    author="wuhp",
     author_email="your.email@example.com",
     description="A Python package to overlay YOLO detections on displays using a custom DLL.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/yolo-overlay",  # Replace with your project's URL
+    url="https://github.com/wuhplaptop/yolo_overlay",  # Replace with your project's URL
     packages=find_packages(),
     package_data={
         'yolo_overlay': ['resources/*.dll'],  # This will now include overlay-yolo.dll
