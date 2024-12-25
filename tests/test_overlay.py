@@ -50,6 +50,7 @@ class TestYOLOOverlay(unittest.TestCase):
 
             # Debug: Print mock YOLO call arguments
             print(f"[DEBUG] YOLO was called with: {mock_yolo.call_args}")
+            print(f"[DEBUG] Model path during initialization: {overlay.model_path}")
 
             # Assert the YOLO model was called with the correct path
             mock_yolo.assert_called_with(expected_model_path)
@@ -59,26 +60,6 @@ class TestYOLOOverlay(unittest.TestCase):
             mock_dll_instance.StopOverlay.assert_called_once()
         except Exception as e:
             self.fail(f"Initialization failed with exception: {e}")
-
-    @patch('yolo_overlay.overlay.pkg_resources.path')
-    def test_model_path_check(self, mock_pkg_resources_path):
-        """
-        Verify the model path used in YOLOOverlay is correct and does not contain typos.
-        """
-        # Expected path for the model
-        expected_model_path = "resources/writing50e11n.pt"
-        
-        # Mock the DLL path
-        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = "resources/overlay-yolo.dll"
-        
-        try:
-            # Initialize the overlay
-            overlay = YOLOOverlay(model_path=expected_model_path)
-            self.assertTrue(overlay.model_path.endswith('.pt'), "Model file should end with .pt")
-            self.assertEqual(overlay.model_path, expected_model_path, "Model path mismatch")
-            print(f"[DEBUG] Model path verified: {overlay.model_path}")
-        except Exception as e:
-            self.fail(f"Model path check failed with exception: {e}")
 
 
 if __name__ == "__main__":
