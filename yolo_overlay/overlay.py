@@ -15,7 +15,7 @@ from pathlib import Path
 import platform
 
 class YOLOOverlay:
-    def __init__(self, dll_path=None, model_path, max_detections=100, conf_threshold=0.5, monitor_index=0):
+    def __init__(self, model_path, dll_path=None, max_detections=100, conf_threshold=0.5, monitor_index=0):
         if platform.system() != 'Windows':
             raise OSError("YOLO Overlay is only supported on Windows systems.")
         
@@ -62,6 +62,11 @@ class YOLOOverlay:
             sys.exit(1)
 
     def _load_model(self):
+        if self.model_path is None:
+            print("[ERROR] YOLO model path not provided.")
+            self.stop()
+            sys.exit(1)
+        
         try:
             self.model = YOLO(self.model_path)
             print("[INFO] YOLO model loaded successfully.")
@@ -133,15 +138,6 @@ class YOLOOverlay:
             # This could involve passing the new threshold to the thread or restarting it
             # For simplicity, this is left as a placeholder
             print(f"[INFO] Updated confidence threshold to: {self.conf_threshold}")
-
-    def restart_detection_thread(self):
-        """Restart the detection thread to apply new settings."""
-        if self.detection_thread and self.detection_thread.is_alive():
-            print("[INFO] Restarting detection thread to apply new settings...")
-            # Implement logic to stop and restart the detection thread
-            # This may require adding flags or using threading Events
-            # For simplicity, this is left as a placeholder
-            pass
 
     def stop(self):
         if self.overlay_dll:
