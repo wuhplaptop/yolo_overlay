@@ -1,3 +1,2 @@
-include README.md
-include LICENSE
-recursive-include yolo_overlay/resources *.dll
+include yolo_overlay/resources/*.dll
+include yolo_overlay/resources/*.pt
