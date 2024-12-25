@@ -14,28 +14,29 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/wuhplaptop/yolo_overlay",  # Replace with your project's URL
-    packages=find_packages(),
+    packages=find_packages(include=["yolo_overlay", "yolo_overlay.*"]),
     package_data={
-        'yolo_overlay': ['resources/*.dll'],  # This will now include overlay-yolo.dll
+        'yolo_overlay': ['resources/*.dll'],  # Includes the DLL in the package
     },
-    include_package_data=True,
+    include_package_data=True,  # Ensure package data is included
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: Microsoft :: Windows",
-        "License :: OSI Approved :: MIT License",  # Choose your license
+        "License :: OSI Approved :: MIT License",  # Adjust based on your license
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     python_requires='>=3.7',
     install_requires=[
-        "Pillow",
-        "mss",
-        "ultralytics",
-        "screeninfo",
-        "numpy",
+        "Pillow>=8.0.0",  # Specify minimum versions where relevant
+        "mss>=6.0.0",
+        "ultralytics>=8.0.0",
+        "screeninfo>=0.8.0",
+        "numpy>=1.20.0",
     ],
     entry_points={
         'console_scripts': [
-            'yolo-overlay=yolo_overlay.cli:main',
+            'yolo-overlay=yolo_overlay.cli:main',  # Entry point for a command-line tool
         ],
     },
+    keywords="yolo overlay detection computer-vision",
 )
