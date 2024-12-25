@@ -70,15 +70,16 @@ class YOLOOverlay:
             self.stop()
             sys.exit(1)
         
-        # Debugging: Check for model path errors
-        print(f"[DEBUG] Attempting to load YOLO model from: {self.model_path}")
+        print(f"[DEBUG] Attempting to load YOLO model with path: {self.model_path}")
+
+        # Ensure the path ends with '.pt'
         if not self.model_path.endswith(".pt"):
-            print("[ERROR] Model path must end with .pt")
-            sys.exit(1)
+            print(f"[ERROR] Invalid model path extension: {self.model_path}")
+            raise ValueError("Model path must end with '.pt'")
         
         try:
             self.model = YOLO(self.model_path)
-            print("[INFO] YOLO model loaded successfully.")
+            print(f"[INFO] YOLO model successfully loaded from: {self.model_path}")
         except Exception as e:
             print(f"[ERROR] Failed to load YOLO model: {e}")
             self.stop()
