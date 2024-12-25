@@ -45,7 +45,7 @@ class TestYOLOOverlay(unittest.TestCase):
         # Initialize YOLOOverlay with mocked dependencies
         try:
             overlay = YOLOOverlay(
-                model_path=r"C:\path\to\your-model.pt",
+                model_path=r"writing50e11n.ptt",
                 max_detections=100,
                 conf_threshold=0.5,
                 monitor_index=0
@@ -56,7 +56,7 @@ class TestYOLOOverlay(unittest.TestCase):
             mock_windll.assert_called_with('path/to/overlay-yolo.dll')
             
             # Verify that YOLO was called with the correct model path
-            mock_yolo.assert_called_with(r"C:\path\to\your-model.pt")
+            mock_yolo.assert_called_with(r"writing50e11n.pt")
             
             # Verify that SetTargetMonitorRect was called with correct parameters
             mock_dll_instance.SetTargetMonitorRect.assert_called_with(
