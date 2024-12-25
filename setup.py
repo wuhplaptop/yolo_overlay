@@ -27,11 +27,11 @@ setup(
     ],
     python_requires='>=3.7',
     install_requires=[
-        "Pillow>=8.0.0",  # Specify minimum versions where relevant
-        "mss>=6.0.0",
-        "ultralytics>=8.0.0",
-        "screeninfo>=0.8.0",
-        "numpy>=1.20.0",
+        "Pillow>=9.4.0",
+        "mss>=6.1.0",
+        "ultralytics>=8.0.49",
+        "screeninfo>=0.8.1",
+        "numpy>=1.24.3",
     ],
     entry_points={
         'console_scripts': [
