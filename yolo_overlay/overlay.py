@@ -48,6 +48,8 @@ class YOLOOverlay:
                 print(f"[ERROR] Could not locate overlay-yolo.dll: {e}")
                 raise FileNotFoundError("DLL not found or inaccessible.")
         else:
+            if not os.path.exists(dll_path):
+                raise FileNotFoundError(f"Provided DLL path does not exist: {dll_path}")
             return dll_path
 
     def _load_dll(self):
@@ -79,8 +81,7 @@ class YOLOOverlay:
             raise ValueError("Model path must end with '.pt'")
 
         try:
-            # Force weights-only loading to avoid security issues with pickle files
-            self.model = YOLO(self.model_path, weights_only=True)
+            self.model = YOLO(self.model_path)  # Removed weights_only argument
             print(f"[INFO] YOLO model successfully loaded from: {self.model_path}")
         except ModuleNotFoundError as e:
             print(f"[ERROR] Missing dependency in YOLO model: {e}")
