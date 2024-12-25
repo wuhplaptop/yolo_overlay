@@ -1,5 +1,7 @@
+import unittest
 import os
 import pkg_resources
+from yolo_overlay import YOLOOverlay
 
 class TestYOLOOverlay(unittest.TestCase):
     def test_initialization(self):
@@ -37,3 +39,6 @@ class TestYOLOOverlay(unittest.TestCase):
             self.assertEqual(overlay.model_path, model_path, "Model path was altered.")
         except Exception as e:
             self.fail(f"Model path integrity test failed with exception: {e}")
+
+if __name__ == "__main__":
+    unittest.main()
