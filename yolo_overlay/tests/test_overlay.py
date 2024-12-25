@@ -1,15 +1,13 @@
-import unittest
-from yolo_overlay import YOLOOverlay
 import os
+import pkg_resources
 
 class TestYOLOOverlay(unittest.TestCase):
-
     def test_initialization(self):
         """
         Test the successful initialization of YOLOOverlay with actual file paths.
         """
-        model_path = os.path.join("yolo_overlay", "resources", "writing50e11n.pt")
-        dll_path = os.path.join("yolo_overlay", "resources", "overlay-yolo.dll")
+        model_path = pkg_resources.resource_filename('yolo_overlay', 'resources/writing50e11n.pt')
+        dll_path = pkg_resources.resource_filename('yolo_overlay', 'resources/overlay-yolo.dll')
 
         self.assertTrue(os.path.exists(model_path), f"Model file does not exist: {model_path}")
         self.assertTrue(os.path.exists(dll_path), f"DLL file does not exist: {dll_path}")
@@ -31,7 +29,7 @@ class TestYOLOOverlay(unittest.TestCase):
         """
         Ensure the model path is not altered during initialization.
         """
-        model_path = os.path.join("yolo_overlay", "resources", "writing50e11n.pt")
+        model_path = pkg_resources.resource_filename('yolo_overlay', 'resources/writing50e11n.pt')
         self.assertTrue(os.path.exists(model_path), f"Model file does not exist: {model_path}")
 
         try:
@@ -39,7 +37,3 @@ class TestYOLOOverlay(unittest.TestCase):
             self.assertEqual(overlay.model_path, model_path, "Model path was altered.")
         except Exception as e:
             self.fail(f"Model path integrity test failed with exception: {e}")
-
-
-if __name__ == "__main__":
-    unittest.main()
