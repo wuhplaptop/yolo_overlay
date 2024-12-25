@@ -13,6 +13,7 @@ from PIL import Image
 import os
 from pathlib import Path
 import platform
+import importlib.resources as pkg_resources
 
 class YOLOOverlay:
     def __init__(self, model_path, dll_path=None, max_detections=100, conf_threshold=0.5, monitor_index=0):
@@ -20,12 +21,17 @@ class YOLOOverlay:
             raise OSError("YOLO Overlay is only supported on Windows systems.")
         
         if dll_path is None:
-            # Locate the DLL within the package
-            current_dir = Path(__file__).parent
-            dll_path = current_dir / 'resources' / 'overlay-yolo.dll'
-            dll_path = str(dll_path.resolve())
+            try:
+                # Locate the DLL within the package using importlib.resources
+                with pkg_resources.path('yolo_overlay.resources', 'overlay-yolo.dll') as dll_path_obj:
+                    dll_path_str = str(dll_path_obj)
+            except Exception as e:
+                print(f"[ERROR] Could not locate overlay-yolo.dll: {e}")
+                sys.exit(1)
+        else:
+            dll_path_str = dll_path
         
-        self.dll_path = dll_path
+        self.dll_path = dll_path_str
         self.model_path = model_path
         self.max_detections = max_detections
         self.conf_threshold = conf_threshold
