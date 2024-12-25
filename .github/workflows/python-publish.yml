@@ -25,7 +25,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.9'  # Specify the Python version you need
 
       - name: Install Python dependencies
         run: |
@@ -36,7 +36,7 @@ jobs:
         run: |
           if exist build rmdir /s /q build
           if exist dist rmdir /s /q dist
-          if exist yolo_overlay.egg-info rmdir /s /q yolo_overlay.egg-info
+          if exist overlay_yolo.egg-info rmdir /s /q overlay_yolo.egg-info
         shell: cmd
 
       - name: Setup MSVC environment and compile C code
@@ -45,7 +45,7 @@ jobs:
           "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vcpath.txt
           set /p vcpath=<vcpath.txt
           call "%vcpath%\VC\Auxiliary\Build\vcvarsall.bat" x64
-          cl /LD overlay-yolo.c /Fe:overlay-yolo.dll user32.lib
+          cl /LD overlay-yolo.c /Fe:overlay-yolo.dll user32.lib gdi32.lib
 
       - name: Verify DLL creation
         shell: cmd
@@ -59,8 +59,8 @@ jobs:
 
       - name: Copy DLL to Python package
         run: |
-          mkdir yolo_overlay/resources
-          copy overlay-yolo.dll yolo_overlay/resources/
+          mkdir overlay_yolo
+          copy overlay-yolo.dll overlay_yolo\
         shell: cmd
 
       - name: Build Python package
