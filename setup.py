@@ -16,7 +16,7 @@ requirements = [
 
 setup(
     name="yolo-overlay",  # Replace with your desired package name
-    version="0.1.0",
+    version="0.1.1",
     author="wuhp",
     author_email="your.email@example.com",
     description="A Python package to overlay YOLO detections on displays using a custom DLL.",
