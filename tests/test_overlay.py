@@ -92,7 +92,7 @@ class TestYOLOOverlay(unittest.TestCase):
         # Mock the path context manager to return a fake DLL path
         mock_dll_path = MagicMock()
         mock_pkg_resources_path.return_value.__enter__.return_value = mock_dll_path
-        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'path/to/overlay-yolo.dll'
+        mock_pkg_resources_path.return_value.__enter__.return_value.__str__.return_value = 'resources/overlay-yolo.dll'
 
         # Mock the DLL loading
         mock_dll_instance = MagicMock()
