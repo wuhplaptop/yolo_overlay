@@ -7,40 +7,109 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  setup:
+    name: Setup
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'  # Specify the Python versions you want to test against
-        cache: 'pip'
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install setuptools wheel
-        pip install .
-      shell: cmd
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install setuptools wheel
+          pip install .
+        shell: cmd
 
-    - name: Run tests
-      run: |
-        python -m unittest discover tests
-      shell: cmd
+      # Optionally, upload dependencies as artifacts if needed
+      # This step is optional and can be omitted if not required
+      # - name: Upload dependencies artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: dependencies
+      #     path: .
+  
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+    needs: setup  # This job depends on the 'setup' job
 
-    - name: Build package
-      run: |
-        python setup.py sdist bdist_wheel
-      shell: cmd
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Upload package to PyPI
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: pypa/gh-action-pypi-publish@v1.4.2
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      # If you uploaded artifacts in the 'setup' job, download them here
+      # This step is optional and can be omitted if not required
+      # - name: Download dependencies artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: dependencies
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install setuptools wheel
+          pip install .
+        shell: cmd
+
+      - name: Run unit tests
+        run: |
+          python -m unittest discover tests
+        shell: cmd
+
+  build_and_deploy:
+    name: Build and Deploy
+    runs-on: windows-latest
+    needs: test  # This job depends on the 'test' job
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # If you have built artifacts or need specific files from previous jobs, download them here
+      # This step is optional and can be omitted if not required
+      # - name: Download dependencies artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: dependencies
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install setuptools wheel
+          pip install .
+        shell: cmd
+
+      - name: Build package
+        run: |
+          python setup.py sdist bdist_wheel
+        shell: cmd
+
+      - name: Upload package to PyPI
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: pypa/gh-action-pypi-publish@v1.4.2
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
