@@ -14,11 +14,12 @@ import os
 import platform
 import importlib.resources as pkg_resources
 
+
 class YOLOOverlay:
     def __init__(self, model_path, dll_path=None, max_detections=100, conf_threshold=0.5, monitor_index=0):
         if platform.system() != 'Windows':
             raise OSError("YOLO Overlay is only supported on Windows systems.")
-        
+
         # Load DLL path
         self.dll_path = self._get_dll_path(dll_path)
         self.model_path = model_path
@@ -81,7 +82,7 @@ class YOLOOverlay:
             raise ValueError("Model path must end with '.pt'")
 
         try:
-            self.model = YOLO(self.model_path)  # Removed weights_only argument
+            self.model = YOLO(self.model_path)
             print(f"[INFO] YOLO model successfully loaded from: {self.model_path}")
         except ModuleNotFoundError as e:
             print(f"[ERROR] Missing dependency in YOLO model: {e}")
