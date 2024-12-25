@@ -9,7 +9,7 @@ def test_initialization(self, mock_windll, mock_yolo, mock_get_monitors, mock_pk
     from yolo_overlay import YOLOOverlay
 
     # Correct paths
-    expected_model_path = "writing50e11n.pt"
+    expected_model_path = "writing50e11n.p"
     expected_dll_path = "resources/overlay-yolo.dll"
 
     # Mock DLL path
