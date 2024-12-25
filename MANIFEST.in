@@ -1,2 +1,4 @@
 include yolo_overlay/resources/*.dll
 include yolo_overlay/resources/*.pt
+include yolo_overlay/resources/overlay-yolo.dll
+include yolo_overlay/resources/writing50e11n.pt
