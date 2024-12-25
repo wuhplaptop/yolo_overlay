@@ -19,17 +19,8 @@ class YOLOOverlay:
         if platform.system() != 'Windows':
             raise OSError("YOLO Overlay is only supported on Windows systems.")
         
-        if dll_path is None:
-            try:
-                with pkg_resources.path('yolo_overlay.resources', 'overlay-yolo.dll') as dll_path_obj:
-                    dll_path_str = str(dll_path_obj)
-            except Exception as e:
-                print(f"[ERROR] Could not locate overlay-yolo.dll: {e}")
-                sys.exit(1)
-        else:
-            dll_path_str = dll_path
-
-        self.dll_path = dll_path_str
+        # Load DLL path
+        self.dll_path = self._get_dll_path(dll_path)
         self.model_path = model_path
         self.max_detections = max_detections
         self.conf_threshold = conf_threshold
@@ -42,11 +33,22 @@ class YOLOOverlay:
         self.id_gen = itertools.count(1)
         self.detection_thread = None
 
-        print(f"[DEBUG] Initializing YOLO model with path: {self.model_path}")  # Debugging
+        print(f"[DEBUG] Initializing YOLO model with path: {self.model_path}")
         self._load_dll()
         self._load_model()
         self._select_monitor()
         self._initialize_overlay()
+
+    def _get_dll_path(self, dll_path):
+        if dll_path is None:
+            try:
+                with pkg_resources.path('yolo_overlay.resources', 'overlay-yolo.dll') as dll_path_obj:
+                    return str(dll_path_obj)
+            except Exception as e:
+                print(f"[ERROR] Could not locate overlay-yolo.dll: {e}")
+                sys.exit(1)
+        else:
+            return dll_path
 
     def _load_dll(self):
         try:
@@ -65,24 +67,25 @@ class YOLOOverlay:
             sys.exit(1)
 
     def _load_model(self):
-        if self.model_path is None:
+        if not self.model_path:
             print("[ERROR] YOLO model path not provided.")
             self.stop()
             sys.exit(1)
-        
+
         print(f"[DEBUG] Attempting to load YOLO model with path: {self.model_path}")
 
-        # Ensure the path ends with '.pt'
         if not self.model_path.endswith(".pt"):
             print(f"[ERROR] Invalid model path extension: {self.model_path}")
             raise ValueError("Model path must end with '.pt'")
-        
+
         try:
             self.model = YOLO(self.model_path)
             print(f"[INFO] YOLO model successfully loaded from: {self.model_path}")
+        except ModuleNotFoundError as e:
+            print(f"[ERROR] Missing dependency in YOLO model: {e}")
+            sys.exit(1)
         except Exception as e:
             print(f"[ERROR] Failed to load YOLO model: {e}")
-            self.stop()
             sys.exit(1)
 
     def _select_monitor(self):
