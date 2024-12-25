@@ -11,7 +11,6 @@ from ultralytics import YOLO
 from screeninfo import get_monitors
 from PIL import Image
 import os
-from pathlib import Path
 import platform
 import importlib.resources as pkg_resources
 
@@ -22,7 +21,6 @@ class YOLOOverlay:
         
         if dll_path is None:
             try:
-                # Locate the DLL within the package using importlib.resources
                 with pkg_resources.path('yolo_overlay.resources', 'overlay-yolo.dll') as dll_path_obj:
                     dll_path_str = str(dll_path_obj)
             except Exception as e:
@@ -30,7 +28,7 @@ class YOLOOverlay:
                 sys.exit(1)
         else:
             dll_path_str = dll_path
-        
+
         self.dll_path = dll_path_str
         self.model_path = model_path
         self.max_detections = max_detections
@@ -44,6 +42,7 @@ class YOLOOverlay:
         self.id_gen = itertools.count(1)
         self.detection_thread = None
 
+        print(f"[DEBUG] Initializing YOLO model with path: {self.model_path}")  # Debugging
         self._load_dll()
         self._load_model()
         self._select_monitor()
@@ -52,7 +51,6 @@ class YOLOOverlay:
     def _load_dll(self):
         try:
             self.overlay_dll = ctypes.WinDLL(self.dll_path)
-            # Setup DLL functions
             self.overlay_dll.UpdateDetections.argtypes = [ctypes.POINTER(DetectionBox), ctypes.c_int]
             self.overlay_dll.UpdateDetections.restype = None
             self.overlay_dll.StartOverlay.restype = ctypes.c_int
@@ -61,7 +59,6 @@ class YOLOOverlay:
             self.overlay_dll.SetTargetMonitorRect.restype = None
             self.overlay_dll.SetMaxDetections.argtypes = [ctypes.c_int]
             self.overlay_dll.SetMaxDetections.restype = None
-
             print("[INFO] DLL loaded and functions configured successfully.")
         except Exception as e:
             print(f"[ERROR] Failed to load DLL: {e}")
@@ -100,7 +97,6 @@ class YOLOOverlay:
         self.monitor_width = self.monitor.width
         self.monitor_height = self.monitor.height
 
-        # Set the target monitor rectangle in the DLL
         self.overlay_dll.SetTargetMonitorRect(
             monitor_x_offset,
             monitor_y_offset,
@@ -110,11 +106,9 @@ class YOLOOverlay:
         print(f"[INFO] Set target monitor rectangle to: Left={monitor_x_offset}, Top={monitor_y_offset}, "
               f"Right={monitor_x_offset + self.monitor_width}, Bottom={monitor_y_offset + self.monitor_height}")
 
-        # Set the maximum number of detections
         self.overlay_dll.SetMaxDetections(self.max_detections)
         print(f"[INFO] Set maximum detections to: {self.max_detections}")
 
-        # Start the overlay
         start_result = self.overlay_dll.StartOverlay()
         if start_result != 0:
             print("[ERROR] Failed to start the overlay.")
@@ -122,7 +116,6 @@ class YOLOOverlay:
         else:
             print("[INFO] Overlay started successfully.")
 
-        # Start the detection thread
         self.detection_thread = threading.Thread(
             target=process_detections,
             args=(self.model, self.overlay_dll, self.monitor_width, self.monitor_height, self.id_gen, self.conf_threshold),
@@ -130,20 +123,6 @@ class YOLOOverlay:
         )
         self.detection_thread.start()
         print("[INFO] Detection thread started.")
-
-    def update_settings(self, max_detections=None, conf_threshold=None):
-        """Update overlay settings dynamically."""
-        if max_detections is not None:
-            self.max_detections = max_detections
-            self.overlay_dll.SetMaxDetections(self.max_detections)
-            print(f"[INFO] Updated maximum detections to: {self.max_detections}")
-
-        if conf_threshold is not None:
-            self.conf_threshold = conf_threshold
-            # Note: To update the confidence threshold, you'd need to adjust the detection thread
-            # This could involve passing the new threshold to the thread or restarting it
-            # For simplicity, this is left as a placeholder
-            print(f"[INFO] Updated confidence threshold to: {self.conf_threshold}")
 
     def stop(self):
         if self.overlay_dll:
