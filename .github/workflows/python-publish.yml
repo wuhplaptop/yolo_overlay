@@ -25,7 +25,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Specify the Python version you need
+          python-version: '3.11'  # Specify the Python version you need
 
       - name: Install Python dependencies
         run: |
@@ -36,7 +36,7 @@ jobs:
         run: |
           if exist build rmdir /s /q build
           if exist dist rmdir /s /q dist
-          if exist overlay_yolo.egg-info rmdir /s /q overlay_yolo.egg-info
+          if exist mouse_anywhere.egg-info rmdir /s /q mouse_anywhere.egg-info
         shell: cmd
 
       - name: Setup MSVC environment and compile C code
@@ -45,23 +45,17 @@ jobs:
           "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath > vcpath.txt
           set /p vcpath=<vcpath.txt
           call "%vcpath%\VC\Auxiliary\Build\vcvarsall.bat" x64
-          cl /LD overlay-yolo.c /Fe:overlay-yolo.dll user32.lib gdi32.lib
+          cl /LD mouse-anywhere.c /Fe:mouse_anywhere2.dll user32.lib
 
       - name: Verify DLL creation
         shell: cmd
         run: |
-          if not exist overlay-yolo.dll (
+          if not exist mouse_anywhere2.dll (
             echo "DLL was not created."
             exit 1
           )
           echo "DLL successfully created."
-          dir overlay-yolo.dll
-
-      - name: Copy DLL to Python package
-        run: |
-          mkdir overlay_yolo
-          copy overlay-yolo.dll overlay_yolo\
-        shell: cmd
+          dir mouse_anywhere2.dll
 
       - name: Build Python package
         run: |
@@ -113,7 +107,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       - name: Install Python dependencies
         run: |
@@ -121,6 +115,9 @@ jobs:
           pip install twine
 
       - name: Publish to PyPI with Twine
+        if: >
+          (github.event_name == 'release' && github.event.action == 'published') ||
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
         run: |
           python -m twine upload dist/* --verbose
         env:
